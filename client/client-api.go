@@ -34,5 +34,12 @@ func (i *HTTPAPI) Exports() modules.Exports {
 }
 
 func (i *HTTPAPI) initClient(c sobek.ConstructorCall) *sobek.Object {
-	return &sobek.Object{}
+	rt := i.vu.Runtime()
+
+	client := &Client{
+		vu:  i.vu,
+		obj: rt.NewObject(),
+	}
+
+	return client.obj
 }

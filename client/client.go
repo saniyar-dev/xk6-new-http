@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/grafana/sobek"
 	"go.k6.io/k6/js/modules"
 )
 
@@ -31,9 +32,12 @@ type Client struct {
 	// The http.Client struct to have all the functionalities of a http.Client in Client struct
 	http.Client
 
-	// Multiple vus in k6 can create multiple client objects so we need to have access the vu Runtime, etc.
+	// Multiple vus in k6 can create multiple Client objects so we need to have access the vu Runtime, etc.
 	vu modules.VU
 
-	// Params is the way to config the global params for this object to do requests.
+	// Each vu can create multiple Client objects so we need to have access to the returned sobek.Object returning to vu.
+	obj *sobek.Object
+
+	// Params is the way to config the global params for Client object to do requests.
 	Params Clientparams
 }
