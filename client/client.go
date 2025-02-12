@@ -41,3 +41,7 @@ type Client struct {
 	// Params is the way to config the global params for Client object to do requests.
 	params *Clientparams
 }
+
+// Define func defines data properties on obj attatched to Client struct.
+func (c *Client) Define() {
+}
