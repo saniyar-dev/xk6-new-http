@@ -1,0 +1,9 @@
+examples/autobahn/k6
+examples/autobahn/reports
+vendor
+k6
+
+# I used the config from the main k6's repository as they do the same.
+# https://github.com/grafana/k6/blob/master/.golangci.yml
+.golangci.yml
+
