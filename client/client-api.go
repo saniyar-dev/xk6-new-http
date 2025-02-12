@@ -2,7 +2,7 @@ package client
 
 import (
 	"github.com/grafana/sobek"
-	"go.k6.io/k6/js/common"
+	"github.com/saniyar-dev/xk6-new-http/helpers"
 	"go.k6.io/k6/js/modules"
 )
 
@@ -42,11 +42,10 @@ func (i *HTTPAPI) initClient(c sobek.ConstructorCall) *sobek.Object {
 		obj: rt.NewObject(),
 	}
 
-	if _, err := client.ParseParams(rt, c.Arguments); err != nil {
-		// should we do both of this error raising here?
-		common.Throw(rt, err)
-		return rt.NewGoError(err)
-	}
+	helpers.Must(rt, func() error {
+		_, err := client.ParseParams(rt, c.Arguments)
+		return err
+	}())
 
 	return client.obj
 }
