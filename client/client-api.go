@@ -2,6 +2,7 @@ package client
 
 import (
 	"github.com/grafana/sobek"
+	"go.k6.io/k6/js/common"
 	"go.k6.io/k6/js/modules"
 )
 
@@ -39,6 +40,12 @@ func (i *HTTPAPI) initClient(c sobek.ConstructorCall) *sobek.Object {
 	client := &Client{
 		vu:  i.vu,
 		obj: rt.NewObject(),
+	}
+
+	if _, err := client.ParseParams(rt, c.Arguments); err != nil {
+		// should we do both of this error raising here?
+		common.Throw(rt, err)
+		return rt.NewGoError(err)
 	}
 
 	return client.obj

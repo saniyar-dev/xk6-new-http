@@ -8,18 +8,18 @@ import (
 	"go.k6.io/k6/js/modules"
 )
 
-// Clientparams struct
+// Clientparams struct is the default global options for Client struct
 type Clientparams struct {
 	// dial    interface{}
 
-	// URL represents the default URL client object would use to do requests.
-	URL url.URL
+	// url represents the default URL client object would use to do requests.
+	url url.URL
 
-	// Proxy represents the default proxy client object would use to do requests.
-	Proxy url.URL
+	// proxy represents the default proxy client object would use to do requests.
+	proxy url.URL
 
-	// Headers represents the default headers client object would use to do requests.
-	Headers http.Header
+	// headers represents the default headers client object would use to do requests.
+	headers http.Header
 }
 
 // Client struct is the Client object type that users is going to use in js like this:
@@ -39,5 +39,5 @@ type Client struct {
 	obj *sobek.Object
 
 	// Params is the way to config the global params for Client object to do requests.
-	Params Clientparams
+	params *Clientparams
 }
