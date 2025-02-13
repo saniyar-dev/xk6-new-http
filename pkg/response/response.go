@@ -3,6 +3,7 @@ package response
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/grafana/sobek"
 	"github.com/saniyar-dev/xk6-new-http/pkg/helpers"
@@ -38,8 +39,9 @@ type jsonResponse struct {
 }
 
 func (r *Response) json() ([]byte, error) {
-	body := make([]byte, 1024)
-	if _, err := r.Body.Read(body); err != nil {
+	// TODO: make dynamic buffer for reading from body, maybe add some helper for it to use the functionality global
+	_, body, err := helpers.DynamicRead(r.Body.Read, 1*time.Second)
+	if err != nil {
 		return []byte{}, err
 	}
 
