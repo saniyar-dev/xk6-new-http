@@ -22,6 +22,8 @@ type Clientparams struct {
 	headers http.Header
 }
 
+var _ Params = &Clientparams{}
+
 // Client struct is the Client object type that users is going to use in js like this:
 //
 // const client = new Client();
@@ -42,6 +44,9 @@ type Client struct {
 	params *Clientparams
 }
 
+var _ Object = &Client{}
+
 // Define func defines data properties on obj attatched to Client struct.
-func (c *Client) Define() {
+func (c *Client) Define() error {
+	return nil
 }
