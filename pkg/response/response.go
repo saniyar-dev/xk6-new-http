@@ -59,8 +59,8 @@ func (r *Response) jsonAsync() *sobek.Promise {
 	p, resolve, reject := r.Vu.Runtime().NewPromise()
 
 	go func() {
+		res, err := r.json()
 		enqCallback(func() error {
-			res, err := r.json()
 			if err != nil {
 				if er := reject(err); er != nil {
 					return er
