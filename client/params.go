@@ -9,7 +9,7 @@ import (
 )
 
 // ParseParams parses Client params and save them to it's instance
-func (c *Client) ParseParams(rt *sobek.Runtime, args []sobek.Value) (*Clientparams, error) {
+func (c *Client) ParseParams(rt *sobek.Runtime, args []sobek.Value) (Params, error) {
 	parsed := &Clientparams{
 		headers: make(http.Header),
 	}
