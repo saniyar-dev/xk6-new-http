@@ -2,6 +2,7 @@ package response
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"time"
 
@@ -45,6 +46,11 @@ func (r *Response) json() ([]byte, error) {
 	_, body, err := helpers.DynamicRead(r.Body.Read, 1*time.Second)
 	if err != nil {
 		return []byte{}, err
+	}
+	err = r.Body.Close()
+	if err != nil {
+		// maybe do something better?
+		log.Printf("Response body couldn't be closed!: %s\n", err.Error())
 	}
 
 	res := &jsonResponse{
