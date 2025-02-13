@@ -6,10 +6,11 @@ import (
 	"net/url"
 
 	"github.com/grafana/sobek"
+	"github.com/saniyar-dev/xk6-new-http/pkg/interfaces"
 )
 
 // ParseParams parses Client params and save them to it's instance
-func (c *Client) ParseParams(rt *sobek.Runtime, args []sobek.Value) (Params, error) {
+func (c *Client) ParseParams(rt *sobek.Runtime, args []sobek.Value) (interfaces.Params, error) {
 	parsed := &Clientparams{
 		headers: make(http.Header),
 	}

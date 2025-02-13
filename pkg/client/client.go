@@ -5,6 +5,7 @@ import (
 	"net/url"
 
 	"github.com/grafana/sobek"
+	"github.com/saniyar-dev/xk6-new-http/pkg/interfaces"
 	"go.k6.io/k6/js/modules"
 )
 
@@ -22,7 +23,7 @@ type Clientparams struct {
 	headers http.Header
 }
 
-var _ Params = &Clientparams{}
+var _ interfaces.Params = &Clientparams{}
 
 // Client struct is the Client object type that users is going to use in js like this:
 //
@@ -35,16 +36,16 @@ type Client struct {
 	http.Client
 
 	// Multiple vus in k6 can create multiple Client objects so we need to have access the vu Runtime, etc.
-	vu modules.VU
+	Vu modules.VU
 
 	// Each vu can create multiple Client objects so we need to have access to the returned sobek.Object returning to vu.
-	obj *sobek.Object
+	Obj *sobek.Object
 
 	// Params is the way to config the global params for Client object to do requests.
 	params *Clientparams
 }
 
-var _ Object = &Client{}
+var _ interfaces.Object = &Client{}
 
 // Define func defines data properties on obj attatched to Client struct.
 func (c *Client) Define() error {

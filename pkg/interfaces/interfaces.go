@@ -1,4 +1,4 @@
-package client
+package interfaces
 
 import "github.com/grafana/sobek"
 

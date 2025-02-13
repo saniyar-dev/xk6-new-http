@@ -1,8 +1,9 @@
-package client
+package api
 
 import (
 	"github.com/grafana/sobek"
-	"github.com/saniyar-dev/xk6-new-http/helpers"
+	"github.com/saniyar-dev/xk6-new-http/pkg/client"
+	"github.com/saniyar-dev/xk6-new-http/pkg/helpers"
 	"go.k6.io/k6/js/modules"
 )
 
@@ -34,18 +35,18 @@ func (i *HTTPAPI) Exports() modules.Exports {
 	}
 }
 
-func (i *HTTPAPI) initClient(c sobek.ConstructorCall) *sobek.Object {
+func (i *HTTPAPI) initClient(sc sobek.ConstructorCall) *sobek.Object {
 	rt := i.vu.Runtime()
 
-	client := &Client{
-		vu:  i.vu,
-		obj: rt.NewObject(),
+	c := &client.Client{
+		Vu:  i.vu,
+		Obj: rt.NewObject(),
 	}
 
 	helpers.Must(rt, func() error {
-		_, err := client.ParseParams(rt, c.Arguments)
+		_, err := c.ParseParams(rt, sc.Arguments)
 		return err
 	}())
 
-	return client.obj
+	return c.Obj
 }
