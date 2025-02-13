@@ -1,4 +1,4 @@
-package main
+package api
 
 import (
 	"github.com/saniyar-dev/xk6-new-http/pkg/api"
