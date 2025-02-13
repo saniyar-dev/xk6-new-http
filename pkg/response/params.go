@@ -11,6 +11,6 @@ type Responseparams struct{}
 
 var _ interfaces.Params = &Responseparams{}
 
-func (c *Response) ParseParams(rt *sobek.Runtime, args []sobek.Value) (interfaces.Params, error) {
+func (r *Response) ParseParams(rt *sobek.Runtime, args []sobek.Value) (interfaces.Params, error) {
 	return &Responseparams{}, nil
 }
