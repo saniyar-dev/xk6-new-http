@@ -2,6 +2,7 @@ package response
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"time"
 
@@ -35,14 +36,21 @@ type jsonResponse struct {
 	Status     string      `json:"status"`
 	StatusCode int         `json:"status_code"`
 	Header     http.Header `json:"header"`
-	Body       []byte      `json:"body"`
+	// TODO: when it's in []byte the output would be base64 encoded and when it's in string it's ugly in the output
+	// make a workaround for it
+	Body []byte `json:"body"`
 }
 
 func (r *Response) json() ([]byte, error) {
-	// TODO: make dynamic buffer for reading from body, maybe add some helper for it to use the functionality global
+	// TODO: make timeout configurable
 	_, body, err := helpers.DynamicRead(r.Body.Read, 1*time.Second)
 	if err != nil {
 		return []byte{}, err
+	}
+	err = r.Body.Close()
+	if err != nil {
+		// maybe do something better?
+		log.Printf("Response body couldn't be closed!: %s\n", err.Error())
 	}
 
 	res := &jsonResponse{
@@ -51,7 +59,7 @@ func (r *Response) json() ([]byte, error) {
 		Status:     r.Status,
 		StatusCode: r.StatusCode,
 	}
-	return json.Marshal(res)
+	return json.MarshalIndent(res, "", "    ")
 }
 
 func (r *Response) jsonAsync() *sobek.Promise {
@@ -59,14 +67,14 @@ func (r *Response) jsonAsync() *sobek.Promise {
 	p, resolve, reject := r.Vu.Runtime().NewPromise()
 
 	go func() {
+		res, err := r.json()
 		enqCallback(func() error {
-			res, err := r.json()
 			if err != nil {
 				if er := reject(err); er != nil {
 					return er
 				}
 			}
-			if er := resolve(res); er != nil {
+			if er := resolve(string(res)); er != nil {
 				return er
 			}
 			return nil

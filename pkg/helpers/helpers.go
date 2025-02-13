@@ -35,7 +35,7 @@ func DynamicRead(read func([]byte) (int, error), timeout time.Duration) (int, []
 			total += n
 			buffer.Write(chunk[:n])
 		}
-		if err != nil {
+		if err != nil && err.Error() != "EOF" {
 			return total, buffer.Bytes(), err
 		}
 
