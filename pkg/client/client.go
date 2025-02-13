@@ -2,7 +2,6 @@ package client
 
 import (
 	"net/http"
-	"net/url"
 
 	"github.com/grafana/sobek"
 	"github.com/saniyar-dev/xk6-new-http/pkg/helpers"
@@ -10,22 +9,6 @@ import (
 	"github.com/saniyar-dev/xk6-new-http/pkg/response"
 	"go.k6.io/k6/js/modules"
 )
-
-// Clientparams struct is the default global options for Client struct
-type Clientparams struct {
-	// dial    interface{}
-
-	// url represents the default URL client object would use to do requests.
-	url url.URL
-
-	// proxy represents the default proxy client object would use to do requests.
-	proxy url.URL
-
-	// headers represents the default headers client object would use to do requests.
-	headers http.Header
-}
-
-var _ interfaces.Params = &Clientparams{}
 
 // Client struct is the Client object type that users is going to use in js like this:
 //
