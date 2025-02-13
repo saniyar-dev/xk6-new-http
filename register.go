@@ -6,5 +6,5 @@ import (
 )
 
 func init() {
-	modules.Register("k6/x/new-http", new(api.RootModule))
+	modules.Register("k6/x/net/http", new(api.RootModule))
 }
