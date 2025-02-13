@@ -3,6 +3,7 @@ package response
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/grafana/sobek"
 	"github.com/saniyar-dev/xk6-new-http/pkg/helpers"
@@ -34,15 +35,21 @@ type jsonResponse struct {
 	Status     string      `json:"status"`
 	StatusCode int         `json:"status_code"`
 	Header     http.Header `json:"header"`
-	Body       []byte      `json:"body"`
+	// TODO: when it's in []byte the output would be base64 encoded and when it's in string it's ugly in the output
+	// make a workaround for it
+	Body []byte `json:"body"`
 }
 
 func (r *Response) json() ([]byte, error) {
-	// TODO: make dynamic buffer for reading from body, maybe add some helper for it to use the functionality global
+	// TODO: make timeout configurable
+	_, body, err := helpers.DynamicRead(r.Body.Read, 1*time.Second)
+	if err != nil {
+		return []byte{}, err
+	}
 
 	res := &jsonResponse{
-		Header: r.Header,
-		// Body:       body,
+		Header:     r.Header,
+		Body:       body,
 		Status:     r.Status,
 		StatusCode: r.StatusCode,
 	}
