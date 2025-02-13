@@ -3,7 +3,6 @@ package response
 import (
 	"encoding/json"
 	"net/http"
-	"time"
 
 	"github.com/grafana/sobek"
 	"github.com/saniyar-dev/xk6-new-http/pkg/helpers"
@@ -40,18 +39,14 @@ type jsonResponse struct {
 
 func (r *Response) json() ([]byte, error) {
 	// TODO: make dynamic buffer for reading from body, maybe add some helper for it to use the functionality global
-	_, body, err := helpers.DynamicRead(r.Body.Read, 1*time.Second)
-	if err != nil {
-		return []byte{}, err
-	}
 
 	res := &jsonResponse{
-		Header:     r.Header,
-		Body:       body,
+		Header: r.Header,
+		// Body:       body,
 		Status:     r.Status,
 		StatusCode: r.StatusCode,
 	}
-	return json.Marshal(res)
+	return json.MarshalIndent(res, "", "    ")
 }
 
 func (r *Response) jsonAsync() *sobek.Promise {
@@ -66,7 +61,7 @@ func (r *Response) jsonAsync() *sobek.Promise {
 					return er
 				}
 			}
-			if er := resolve(res); er != nil {
+			if er := resolve(string(res)); er != nil {
 				return er
 			}
 			return nil
