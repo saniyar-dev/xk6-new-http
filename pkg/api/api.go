@@ -47,6 +47,7 @@ func (i *HTTPAPI) initClient(sc sobek.ConstructorCall) *sobek.Object {
 		_, err := c.ParseParams(rt, sc.Arguments)
 		return err
 	}())
+	helpers.Must(rt, c.Define())
 
 	return c.Obj
 }
