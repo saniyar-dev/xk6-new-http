@@ -72,6 +72,8 @@ func (c *Client) get(url string) (*response.Response, error) {
 	}
 
 	resp.Response = *httpResp
+
+	helpers.Must(rt, resp.Define())
 	return resp, nil
 }
 
@@ -87,7 +89,7 @@ func (c *Client) getAsync(url string) *sobek.Promise {
 					return er
 				}
 			}
-			if er := resolve(res); er != nil {
+			if er := resolve(res.Obj); er != nil {
 				return er
 			}
 			return nil
