@@ -9,6 +9,22 @@ import (
 	"github.com/saniyar-dev/xk6-new-http/pkg/interfaces"
 )
 
+// Clientparams struct is the default global options for Client struct
+type Clientparams struct {
+	// dial    interface{}
+
+	// url represents the default URL client object would use to do requests.
+	url url.URL
+
+	// proxy represents the default proxy client object would use to do requests.
+	proxy url.URL
+
+	// headers represents the default headers client object would use to do requests.
+	headers http.Header
+}
+
+var _ interfaces.Params = &Clientparams{}
+
 // ParseParams parses Client params and save them to it's instance
 func (c *Client) ParseParams(rt *sobek.Runtime, args []sobek.Value) (interfaces.Params, error) {
 	parsed := &Clientparams{
