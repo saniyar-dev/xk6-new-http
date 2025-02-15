@@ -15,7 +15,7 @@ type Requestparams struct {
 	headers http.Header
 
 	// url represents the default URL client object would use to do requests.
-	url url.URL
+	url *url.URL
 }
 
 // ParseParams parses Request params and save them to it's instance
@@ -64,7 +64,7 @@ func (r *Request) ParseParams(rt *sobek.Runtime, args []sobek.Value) (interfaces
 						v,
 					)
 				}
-				parsed.url = *addr
+				parsed.url = addr
 			} else {
 				return parsed, fmt.Errorf(
 					"invalid url for Request: %s",

@@ -23,7 +23,7 @@ var _ interfaces.Object = &Request{}
 // Define func defines data properties on obj attatched to Request struct.
 func (r *Request) Define() error {
 	// rt := r.Vu.Runtime()
-	r.URL = &r.params.url
-	r.Header = r.params.headers
+	r.Request.URL = r.params.url
+	r.Request.Header = r.params.headers.Clone()
 	return nil
 }

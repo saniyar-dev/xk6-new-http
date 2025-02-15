@@ -7,7 +7,7 @@ export default async function () {
   const request = new Request({
     url: 'https://httpbin.test.k6.io/get', 
     // These will be merged with the Client options.
-    headers: { 'Case-Sensitive-Header': 'somevalue' },
+    headers: { 'User-Agent': 'saniyar' },
   });
   // const response = await client.get(request, {
   //   // These will override any options for this specific submission.
