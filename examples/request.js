@@ -8,10 +8,13 @@ export default async function () {
     // These will be merged with the Client options.
     headers: { 'Case-Sensitive-Header': 'somevalue' },
   });
-  const response = await client.get(request, {
-    // These will override any options for this specific submission.
-    headers: { 'Case-Sensitive-Header': 'anothervalue' },
-  });
+  // const response = await client.get(request, {
+  //   // These will override any options for this specific submission.
+  //   headers: { 'Case-Sensitive-Header': 'anothervalue' },
+  // });
+  
+  // we don't implement override any options yet
+  const response = await client.get(request)
   const jsonData = await response.json();
   console.log(jsonData);
 }
