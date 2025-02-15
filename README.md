@@ -2,8 +2,13 @@
 
 This extension goal is to change the way users used to make HTTP connection with k6.
 
-As you can see in [k6 repo](https://github.com/grafana/k6) there is [lots of issues](https://github.com/grafana/k6/issues?q=is%3Aissue%20state%3Aopen%20label%3Anew-http) with old/standard [HTTP API]() implemented in k6 originally.
+As you can see in [k6 repo](https://github.com/grafana/k6) there is [lots of issues](https://github.com/grafana/k6/issues?q=is%3Aissue%20state%3Aopen%20label%3Anew-http) with old/standard [HTTP API](https://t.me/saniyar_krmi) implemented in k6 originally.
 So they came with an idea to design a complete new HTTP API (you can see [the design document here](https://github.com/grafana/k6/blob/master/docs/design/018-new-http-api.md)).
+
+### What i'm doing?
+I couldn't find an implementation for [the design document here](https://github.com/grafana/k6/blob/master/docs/design/018-new-http-api.md), so i decided to implement it myself and contribute to the great k6.
+I need you to know that this project is a working progress and also my hubby as a side project, so don't expect something unordinary great from it. I hope some day it will be a great implementation of [phase 1](https://github.com/grafana/k6/issues/3038), but today is not the day.
+Hope you enjoy it!
 
 ## Requirements
 
@@ -32,7 +37,10 @@ export default async function () {
   console.log(jsonData);
 }
 ```
+***
 - Creating a client with custom transport settings, some HTTP options, and making a POST request:
+  
+  > This example is on todo list and doesn't work now
 ```javascript
 import { TCP } from 'k6/x/net';
 import { Client } from 'k6/x/net/http';
@@ -50,7 +58,10 @@ export default async function () {
   });
 }
 ```
+***
 - see `examples` dir for more examples
+  
+  > Some examples are on todo list but i will deliver them very fast don't wory.
 
 ## Contributing
 
