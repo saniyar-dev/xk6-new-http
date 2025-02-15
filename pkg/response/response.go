@@ -14,7 +14,7 @@ import (
 
 // Response object
 type Response struct {
-	http.Response
+	*http.Response
 
 	Vu modules.VU
 
