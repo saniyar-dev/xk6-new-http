@@ -1,11 +1,14 @@
 package client
 
 import (
+	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/grafana/sobek"
 	"github.com/saniyar-dev/xk6-new-http/pkg/helpers"
 	"github.com/saniyar-dev/xk6-new-http/pkg/interfaces"
+	"github.com/saniyar-dev/xk6-new-http/pkg/request"
 	"github.com/saniyar-dev/xk6-new-http/pkg/response"
 	"go.k6.io/k6/js/modules"
 )
@@ -41,7 +44,8 @@ func (c *Client) Define() error {
 	return nil
 }
 
-func (c *Client) get(url string) (*response.Response, error) {
+// this function would handle any type of request and do the actuall job of requesting
+func (c *Client) do(req *request.Request) (*response.Response, error) {
 	rt := c.Vu.Runtime()
 
 	resp := &response.Response{
@@ -49,7 +53,7 @@ func (c *Client) get(url string) (*response.Response, error) {
 		Vu:  c.Vu,
 	}
 
-	httpResp, err := c.Get(url)
+	httpResp, err := c.Do(&req.Request)
 	if err != nil {
 		return resp, err
 	}
@@ -60,12 +64,42 @@ func (c *Client) get(url string) (*response.Response, error) {
 	return resp, nil
 }
 
-func (c *Client) getAsync(url string) *sobek.Promise {
+func createRequest(method string, arg sobek.Value) (*request.Request, error) {
+	// TODO: Optimize this function
+	req := &request.Request{}
+	req.Method = method
+
+	if v, ok := arg.Export().(*request.Request); ok {
+		req = v
+		req.Method = method
+		return req, nil
+	} else if v, ok := arg.Export().(string); ok {
+		addr, err := url.Parse(v)
+		if err != nil {
+			return req, err
+		}
+		req.URL = addr
+		return req, nil
+	}
+
+	return req, fmt.Errorf(
+		"invalid input! couldn't make the request from argument: %+v",
+		arg.Export())
+}
+
+func (c *Client) getAsync(arg sobek.Value) *sobek.Promise {
 	enqCallback := c.Vu.RegisterCallback()
 	p, resolve, reject := c.Vu.Runtime().NewPromise()
 
+	req, err := createRequest(http.MethodGet, arg)
+	if err != nil {
+		// TODO: find a way to handle the rejection error
+		_ = reject(err)
+		return p
+	}
+
 	go func() {
-		res, err := c.get(url)
+		res, err := c.do(req)
 		enqCallback(func() error {
 			if err != nil {
 				if er := reject(err); er != nil {

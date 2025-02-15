@@ -1,4 +1,4 @@
-package client
+package request
 
 import (
 	"fmt"
@@ -9,34 +9,27 @@ import (
 	"github.com/saniyar-dev/xk6-new-http/pkg/interfaces"
 )
 
-// Clientparams struct is the default global options for Client struct
-type Clientparams struct {
-	// dial    interface{}
-
-	// url represents the default URL client object would use to do requests.
-	url url.URL
-
-	// proxy represents the default proxy client object would use to do requests.
-	proxy url.URL
-
+// Requestparams struct is the options for request
+type Requestparams struct {
 	// headers represents the default headers client object would use to do requests.
 	headers http.Header
+
+	// url represents the default URL client object would use to do requests.
+	url *url.URL
 }
 
-var _ interfaces.Params = &Clientparams{}
-
-// ParseParams parses Client params and save them to it's instance
-func (c *Client) ParseParams(rt *sobek.Runtime, args []sobek.Value) (interfaces.Params, error) {
-	parsed := &Clientparams{
+// ParseParams parses Request params and save them to it's instance
+func (r *Request) ParseParams(rt *sobek.Runtime, args []sobek.Value) (interfaces.Params, error) {
+	parsed := &Requestparams{
 		headers: make(http.Header),
 	}
 	if len(args) == 0 {
-		c.params = parsed
+		r.params = parsed
 		return parsed, nil
 	}
 	if len(args) > 1 {
 		return nil, fmt.Errorf(
-			"you can't have multiple arguments when creating a new Client, but you've had %d args",
+			"you can't have multiple arguments when creating a new Request, but you've had %d args",
 			len(args),
 		)
 	}
@@ -58,15 +51,6 @@ func (c *Client) ParseParams(rt *sobek.Runtime, args []sobek.Value) (interfaces.
 				parsed.headers.Set(key, headersObj.Get(key).String())
 			}
 
-		case "proxy":
-			proxy := params.Get(k)
-			if sobek.IsUndefined(proxy) || sobek.IsNull(proxy) {
-				continue
-			}
-			if v, ok := proxy.Export().(*url.URL); ok {
-				parsed.proxy = *v
-			}
-
 		case "url":
 			urlV := params.Get(k)
 			if sobek.IsUndefined(urlV) || sobek.IsNull(urlV) {
@@ -76,27 +60,26 @@ func (c *Client) ParseParams(rt *sobek.Runtime, args []sobek.Value) (interfaces.
 				addr, err := url.Parse(v)
 				if err != nil {
 					return parsed, fmt.Errorf(
-						"invalid url for Client: %s",
+						"invalid url for Request: %s",
 						v,
 					)
 				}
-				parsed.url = *addr
+				parsed.url = addr
 			} else {
 				return parsed, fmt.Errorf(
-					"invalid url for Client: %s",
+					"invalid url for Request: %s",
 					v,
 				)
 			}
 
 		default:
 			return parsed, fmt.Errorf(
-				"unknown Client's option: %s",
+				"unknown Request's option: %s",
 				k,
 			)
 		}
 	}
 
-	c.params = parsed
-
-	return parsed, nil
+	r.params = parsed
+	return &Requestparams{}, nil
 }
