@@ -14,7 +14,8 @@ type Request struct {
 
 	Vu modules.VU
 
-	Obj *sobek.Object
+	Obj    *sobek.Object
+	params *Requestparams
 }
 
 var _ interfaces.Object = &Request{}
