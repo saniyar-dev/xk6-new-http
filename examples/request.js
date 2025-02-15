@@ -4,7 +4,8 @@ export default async function () {
   const client = new Client({
     headers: { 'User-Agent': 'k6' },  // set some global headers
   });
-  const request = new Request('https://httpbin.test.k6.io/get', {
+  const request = new Request({
+    url: 'https://httpbin.test.k6.io/get', 
     // These will be merged with the Client options.
     headers: { 'Case-Sensitive-Header': 'somevalue' },
   });
