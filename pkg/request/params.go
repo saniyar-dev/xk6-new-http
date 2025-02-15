@@ -56,8 +56,20 @@ func (r *Request) ParseParams(rt *sobek.Runtime, args []sobek.Value) (interfaces
 			if sobek.IsUndefined(urlV) || sobek.IsNull(urlV) {
 				continue
 			}
-			if v, ok := urlV.Export().(*url.URL); ok {
-				parsed.url = *v
+			if v, ok := urlV.Export().(string); ok {
+				addr, err := url.Parse(v)
+				if err != nil {
+					return parsed, fmt.Errorf(
+						"invalid url for Request: %s",
+						v,
+					)
+				}
+				parsed.url = *addr
+			} else {
+				return parsed, fmt.Errorf(
+					"invalid url for Request: %s",
+					v,
+				)
 			}
 
 		default:
@@ -67,5 +79,7 @@ func (r *Request) ParseParams(rt *sobek.Runtime, args []sobek.Value) (interfaces
 			)
 		}
 	}
+
+	r.params = parsed
 	return &Requestparams{}, nil
 }
