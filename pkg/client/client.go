@@ -2,8 +2,8 @@ package client
 
 import (
 	"fmt"
+	"io"
 	"net/http"
-	"net/url"
 
 	"github.com/grafana/sobek"
 	"github.com/saniyar-dev/xk6-new-http/pkg/helpers"
@@ -53,36 +53,44 @@ func (c *Client) do(req *request.Request) (*response.Response, error) {
 		Vu:  c.Vu,
 	}
 
-	httpResp, err := c.Do(&req.Request)
+	httpResp, err := c.Do(req.Request)
 	if err != nil {
 		return resp, err
 	}
 
-	resp.Response = *httpResp
+	resp.Response = httpResp
 
 	helpers.Must(rt, resp.Define())
 	return resp, nil
 }
 
-func createRequest(method string, arg sobek.Value) (*request.Request, error) {
-	// TODO: Optimize this function
-	req := &request.Request{}
-	req.Method = method
-
-	if v, ok := arg.Export().(*request.Request); ok {
-		req = v
-		req.Method = method
-		return req, nil
-	} else if v, ok := arg.Export().(string); ok {
-		addr, err := url.Parse(v)
-		if err != nil {
-			return req, err
+func (c *Client) createRequest(method string, arg sobek.Value, body io.Reader) (*request.Request, error) {
+	// add default options to requests function
+	addDefault := func(req *request.Request) {
+		for k, vlist := range c.params.headers {
+			if len(vlist) == 0 {
+				continue
+			}
+			for _, v := range vlist {
+				req.Header.Add(k, v)
+			}
 		}
-		req.URL = addr
-		return req, nil
 	}
 
-	return req, fmt.Errorf(
+	// if the input is an req object then everything has been set before so we just add defaults and return
+	if v, ok := arg.Export().(*request.Request); ok {
+		addDefault(v)
+		return v, nil
+	}
+
+	if v, ok := arg.Export().(string); ok {
+		r, err := http.NewRequest(method, v, body)
+		req := &request.Request{Request: r}
+		addDefault(req)
+		return req, err
+	}
+
+	return &request.Request{}, fmt.Errorf(
 		"invalid input! couldn't make the request from argument: %+v",
 		arg.Export())
 }
@@ -91,7 +99,7 @@ func (c *Client) getAsync(arg sobek.Value) *sobek.Promise {
 	enqCallback := c.Vu.RegisterCallback()
 	p, resolve, reject := c.Vu.Runtime().NewPromise()
 
-	req, err := createRequest(http.MethodGet, arg)
+	req, err := c.createRequest(http.MethodGet, arg, nil)
 	if err != nil {
 		// TODO: find a way to handle the rejection error
 		_ = reject(err)

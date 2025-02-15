@@ -10,7 +10,7 @@ import (
 
 // Request object
 type Request struct {
-	http.Request
+	*http.Request
 
 	Vu modules.VU
 
