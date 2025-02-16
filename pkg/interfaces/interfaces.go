@@ -1,6 +1,9 @@
 package interfaces
 
-import "github.com/grafana/sobek"
+import (
+	"github.com/grafana/sobek"
+	"github.com/saniyar-dev/xk6-new-http/pkg/events"
+)
 
 // Params interface defines the common behavior/functionalities each object params exported on the main API should have.
 // Client, Request, TCP, etc. are objects and params you pass to them while initializing them are object params.
@@ -11,4 +14,9 @@ type Params interface{}
 type Object interface {
 	Define() error
 	ParseParams(*sobek.Runtime, []sobek.Value) (Params, error)
+}
+
+type EventListeners interface {
+	GetListener(string) (*events.EventListener, error)
+	New() EventListeners
 }
