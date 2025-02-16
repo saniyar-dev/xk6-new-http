@@ -8,12 +8,6 @@ type EventListener struct {
 	List []func(sobek.Value) (sobek.Value, error)
 }
 
-func (e *EventListener) NewListener(evType string) *EventListener {
-	return &EventListener{
-		EventType: evType,
-	}
-}
-
 func (e *EventListener) Add(fn func(sobek.Value) (sobek.Value, error)) {
 	e.List = append(e.List, fn)
 }
