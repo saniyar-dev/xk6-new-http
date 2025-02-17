@@ -1,4 +1,4 @@
-package response
+package http
 
 import (
 	"github.com/grafana/sobek"

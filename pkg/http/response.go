@@ -1,4 +1,4 @@
-package response
+package http
 
 import (
 	"encoding/json"
@@ -10,7 +10,6 @@ import (
 	"github.com/grafana/sobek"
 	"github.com/saniyar-dev/xk6-new-http/pkg/helpers"
 	"github.com/saniyar-dev/xk6-new-http/pkg/interfaces"
-	"github.com/saniyar-dev/xk6-new-http/pkg/request"
 	"go.k6.io/k6/js/modules"
 )
 
@@ -24,7 +23,7 @@ type Response struct {
 
 	M map[string]sobek.Value
 
-	Request *request.Request
+	Request *Request
 
 	params *Responseparams
 }

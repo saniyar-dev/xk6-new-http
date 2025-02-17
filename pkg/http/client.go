@@ -1,4 +1,4 @@
-package client
+package http
 
 import (
 	"fmt"
@@ -9,8 +9,6 @@ import (
 	"github.com/grafana/sobek"
 	"github.com/saniyar-dev/xk6-new-http/pkg/helpers"
 	"github.com/saniyar-dev/xk6-new-http/pkg/interfaces"
-	"github.com/saniyar-dev/xk6-new-http/pkg/request"
-	"github.com/saniyar-dev/xk6-new-http/pkg/response"
 	"go.k6.io/k6/js/modules"
 )
 
@@ -104,7 +102,7 @@ func (c *Client) callEventListeners(t string, obj *sobek.Object) error {
 }
 
 // this function queueResponse for handling on the main event loop that the VU has
-func (c *Client) queueResponse(resp *response.Response) {
+func (c *Client) queueResponse(resp *Response) {
 	rt := c.Vu.Runtime()
 	enqCallback := c.Vu.RegisterCallback()
 
@@ -116,10 +114,10 @@ func (c *Client) queueResponse(resp *response.Response) {
 }
 
 // this function would handle any type of request and do the actuall job of requesting
-func (c *Client) do(req *request.Request) (*response.Response, error) {
+func (c *Client) do(req *Request) (*Response, error) {
 	rt := c.Vu.Runtime()
 
-	resp := &response.Response{
+	resp := &Response{
 		Vu:      c.Vu,
 		M:       make(map[string]sobek.Value),
 		Request: req,
@@ -135,14 +133,17 @@ func (c *Client) do(req *request.Request) (*response.Response, error) {
 
 	c.queueResponse(resp)
 
+	// TODO: for now i don't set any property for response to access to it on js but i think it should be done in future
+	req.Response = resp
+
 	return resp, nil
 }
 
 // this function would handle creating request with params from input
-func (c *Client) createRequest(method string, arg sobek.Value, body io.Reader) (*request.Request, error) {
+func (c *Client) createRequest(method string, arg sobek.Value, body io.Reader) (*Request, error) {
 	rt := c.Vu.Runtime()
 	// add default options to requests function
-	addDefault := func(req *request.Request) {
+	addDefault := func(req *Request) {
 		for k, vlist := range c.params.headers {
 			if len(vlist) == 0 {
 				continue
@@ -154,14 +155,14 @@ func (c *Client) createRequest(method string, arg sobek.Value, body io.Reader) (
 	}
 
 	// if the input is an req object then everything has been set before so we just add defaults and return
-	if v, ok := arg.Export().(*request.Request); ok {
+	if v, ok := arg.Export().(*Request); ok {
 		addDefault(v)
 		return v, nil
 	}
 
 	if v, ok := arg.Export().(string); ok {
 		r, err := http.NewRequest(method, v, body)
-		req := &request.Request{
+		req := &Request{
 			Vu:      c.Vu,
 			M:       make(map[string]sobek.Value),
 			Request: r,
@@ -172,7 +173,7 @@ func (c *Client) createRequest(method string, arg sobek.Value, body io.Reader) (
 		return req, err
 	}
 
-	return &request.Request{}, fmt.Errorf(
+	return &Request{}, fmt.Errorf(
 		"invalid input! couldn't make the request from argument: %+v",
 		arg.Export())
 }

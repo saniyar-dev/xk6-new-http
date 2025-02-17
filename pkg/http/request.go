@@ -1,4 +1,4 @@
-package request
+package http
 
 import (
 	"net/http"
@@ -18,6 +18,8 @@ type Request struct {
 	Vu modules.VU
 
 	M map[string]sobek.Value
+
+	Response *Response
 
 	params *Requestparams
 }
