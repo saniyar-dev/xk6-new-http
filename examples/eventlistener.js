@@ -17,10 +17,10 @@ export default async function () {
   //   }
   // });
 
-  client.on('responseReceived', async e => {
-    console.log(await e.json())
-    console.log(e.request.id)
-    console.log(e.id)
+  client.on('responseReceived', async response => {
+    console.log(await response.json())
+    console.log(response.request.id)
+    console.log(response.id)
     // const response = event.data;
     // if (requestID && response.request.id == requestID) {
     //   // Change the request duration metric to any value
