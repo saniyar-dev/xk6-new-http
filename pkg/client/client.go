@@ -30,6 +30,8 @@ type Client struct {
 
 	// Params is the way to config the global params for Client object to do requests.
 	params *Clientparams
+
+	eventListeners interfaces.EventListeners
 }
 
 var _ interfaces.Object = &Client{}
@@ -64,10 +66,41 @@ func (c *Client) Set(k string, val sobek.Value) bool {
 // Define func defines data properties on obj attatched to Client struct.
 func (c *Client) Define() error {
 	rt := c.Vu.Runtime()
+	c.eventListeners = (&eventListeners{}).New()
 
 	c.Set("get", rt.ToValue(c.getAsync))
+	c.Set("addEventListener", rt.ToValue(c.addEventListener))
 	return nil
 }
+
+// this function add an eventListener of type t and an fn callback to the object eventListeners
+func (c *Client) addEventListener(t string, fn func(sobek.Value) (sobek.Value, error)) error {
+	el, err := c.eventListeners.GetListener(t)
+	if err != nil {
+		return err
+	}
+	el.Add(fn)
+
+	return nil
+}
+
+// this function call eventListeners of any type
+func (c *Client) callEventListeners(t string, obj *sobek.Object) error {
+	el, err := c.eventListeners.GetListener(t)
+	if err != nil {
+		return err
+	}
+	for _, fn := range el.All() {
+		if _, err := fn(obj); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// func (c *Client) queueResponse(resp *response.Response) *sobek.Promise {
+// }
 
 // this function would handle any type of request and do the actuall job of requesting
 func (c *Client) do(req *request.Request) (*response.Response, error) {
@@ -84,11 +117,18 @@ func (c *Client) do(req *request.Request) (*response.Response, error) {
 	}
 
 	resp.Response = httpResp
-
 	helpers.Must(rt, resp.Define())
+
+	// TODO: make calling event listeners async
+	err = c.callEventListeners(RESPONSE, resp.Obj)
+	if err != nil {
+		return resp, err
+	}
+
 	return resp, nil
 }
 
+// this function would handle creating request with params from input
 func (c *Client) createRequest(method string, arg sobek.Value, body io.Reader) (*request.Request, error) {
 	// add default options to requests function
 	addDefault := func(req *request.Request) {
