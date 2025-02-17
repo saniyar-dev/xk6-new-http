@@ -18,17 +18,43 @@ type Response struct {
 
 	Vu modules.VU
 
-	Obj *sobek.Object
+	M map[string]sobek.Value
 }
 
 var _ interfaces.Object = &Response{}
+
+func (r *Response) Delete(k string) bool {
+	delete(r.M, k)
+	return true
+}
+
+func (r *Response) Get(k string) sobek.Value {
+	return r.M[k]
+}
+
+func (r *Response) Has(k string) bool {
+	_, exists := r.M[k]
+	return exists
+}
+
+func (r *Response) Keys() []string {
+	keys := make([]string, 0, len(r.M))
+	for k := range r.M {
+		keys = append(keys, k)
+	}
+	return keys
+}
+
+func (r *Response) Set(k string, val sobek.Value) bool {
+	r.M[k] = val
+	return true
+}
 
 // Define func defines data properties on obj attatched to Client struct.
 func (r *Response) Define() error {
 	rt := r.Vu.Runtime()
 
-	helpers.Must(rt, r.Obj.DefineDataProperty(
-		"json", rt.ToValue(r.jsonAsync), sobek.FLAG_FALSE, sobek.FLAG_FALSE, sobek.FLAG_TRUE))
+	r.Set("json", rt.ToValue(r.jsonAsync))
 	return nil
 }
 
