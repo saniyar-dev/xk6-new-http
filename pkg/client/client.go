@@ -101,11 +101,12 @@ func (c *Client) callEventListeners(t string, obj *sobek.Object) error {
 
 // this function queueResponse for handling on the main event loop that the VU has
 func (c *Client) queueResponse(resp *response.Response) {
+	rt := c.Vu.Runtime()
 	enqCallback := c.Vu.RegisterCallback()
 
 	go func() {
 		enqCallback(func() error {
-			return c.callEventListeners(RESPONSE, resp.Obj)
+			return c.callEventListeners(RESPONSE, rt.NewDynamicObject(resp))
 		})
 	}()
 }
