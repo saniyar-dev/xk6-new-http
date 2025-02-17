@@ -133,6 +133,9 @@ func (c *Client) do(req *Request) (*Response, error) {
 
 	c.queueResponse(resp)
 
+	// TODO: for now i don't set any property for response to access to it on js but i think it should be done in future
+	req.Response = resp
+
 	return resp, nil
 }
 

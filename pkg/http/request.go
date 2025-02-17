@@ -19,6 +19,8 @@ type Request struct {
 
 	M map[string]sobek.Value
 
+	Response *Response
+
 	params *Requestparams
 }
 
