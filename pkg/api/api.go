@@ -1,6 +1,8 @@
 package api
 
 import (
+	"net/http"
+
 	"github.com/grafana/sobek"
 	"github.com/saniyar-dev/xk6-new-http/pkg/client"
 	"github.com/saniyar-dev/xk6-new-http/pkg/helpers"
@@ -41,8 +43,8 @@ func (i *HTTPAPI) initClient(sc sobek.ConstructorCall) *sobek.Object {
 	rt := i.vu.Runtime()
 
 	c := &client.Client{
-		Vu:  i.vu,
-		Obj: rt.NewObject(),
+		Vu: i.vu,
+		M:  make(map[string]sobek.Value),
 	}
 
 	helpers.Must(rt, func() error {
@@ -51,24 +53,26 @@ func (i *HTTPAPI) initClient(sc sobek.ConstructorCall) *sobek.Object {
 	}())
 	helpers.Must(rt, c.Define())
 
-	return c.Obj
+	o := rt.NewDynamicObject(c)
+	return o
 }
 
 func (i *HTTPAPI) initRequest(sc sobek.ConstructorCall) *sobek.Object {
 	rt := i.vu.Runtime()
 
 	r := &request.Request{
-		Vu: i.vu,
+		Vu:      i.vu,
+		M:       make(map[string]sobek.Value),
+		Request: &http.Request{},
 	}
 
 	helpers.Must(rt, func() error {
 		_, err := r.ParseParams(rt, sc.Arguments)
 		return err
 	}())
-
-	// TODO: find another way to reconstruct the original Object cause this way we cannot implement other functionality to the object
-	r.Obj = rt.ToValue(r).ToObject(rt)
 	helpers.Must(rt, r.Define())
 
-	return r.Obj
+	// TODO: find another way to reconstruct the original Object cause this way we cannot implement other functionality to the object
+	o := rt.NewDynamicObject(r)
+	return o
 }

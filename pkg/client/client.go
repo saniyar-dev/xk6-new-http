@@ -26,8 +26,7 @@ type Client struct {
 	// Multiple vus in k6 can create multiple Client objects so we need to have access the vu Runtime, etc.
 	Vu modules.VU
 
-	// Each vu can create multiple Client objects so we need to have access to the returned sobek.Object returning to vu.
-	Obj *sobek.Object
+	M map[string]sobek.Value
 
 	// Params is the way to config the global params for Client object to do requests.
 	params *Clientparams
@@ -35,12 +34,38 @@ type Client struct {
 
 var _ interfaces.Object = &Client{}
 
+func (c *Client) Delete(k string) bool {
+	delete(c.M, k)
+	return true
+}
+
+func (c *Client) Get(k string) sobek.Value {
+	return c.M[k]
+}
+
+func (c *Client) Has(k string) bool {
+	_, exists := c.M[k]
+	return exists
+}
+
+func (c *Client) Keys() []string {
+	keys := make([]string, 0, len(c.M))
+	for k := range c.M {
+		keys = append(keys, k)
+	}
+	return keys
+}
+
+func (c *Client) Set(k string, val sobek.Value) bool {
+	c.M[k] = val
+	return true
+}
+
 // Define func defines data properties on obj attatched to Client struct.
 func (c *Client) Define() error {
 	rt := c.Vu.Runtime()
 
-	helpers.Must(rt, c.Obj.DefineDataProperty(
-		"get", rt.ToValue(c.getAsync), sobek.FLAG_FALSE, sobek.FLAG_FALSE, sobek.FLAG_TRUE))
+	c.Set("get", rt.ToValue(c.getAsync))
 	return nil
 }
 
@@ -49,8 +74,8 @@ func (c *Client) do(req *request.Request) (*response.Response, error) {
 	rt := c.Vu.Runtime()
 
 	resp := &response.Response{
-		Obj: rt.NewObject(),
-		Vu:  c.Vu,
+		Vu: c.Vu,
+		M:  make(map[string]sobek.Value),
 	}
 
 	httpResp, err := c.Do(req.Request)
@@ -96,6 +121,8 @@ func (c *Client) createRequest(method string, arg sobek.Value, body io.Reader) (
 }
 
 func (c *Client) getAsync(arg sobek.Value) *sobek.Promise {
+	rt := c.Vu.Runtime()
+
 	enqCallback := c.Vu.RegisterCallback()
 	p, resolve, reject := c.Vu.Runtime().NewPromise()
 
@@ -114,7 +141,7 @@ func (c *Client) getAsync(arg sobek.Value) *sobek.Promise {
 					return er
 				}
 			}
-			if er := resolve(res.Obj); er != nil {
+			if er := resolve(rt.NewDynamicObject(res)); er != nil {
 				return er
 			}
 			return nil
