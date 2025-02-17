@@ -99,8 +99,16 @@ func (c *Client) callEventListeners(t string, obj *sobek.Object) error {
 	return nil
 }
 
-// func (c *Client) queueResponse(resp *response.Response) *sobek.Promise {
-// }
+// this function queueResponse for handling on the main event loop that the VU has
+func (c *Client) queueResponse(resp *response.Response) {
+	enqCallback := c.Vu.RegisterCallback()
+
+	go func() {
+		enqCallback(func() error {
+			return c.callEventListeners(RESPONSE, resp.Obj)
+		})
+	}()
+}
 
 // this function would handle any type of request and do the actuall job of requesting
 func (c *Client) do(req *request.Request) (*response.Response, error) {
@@ -119,11 +127,7 @@ func (c *Client) do(req *request.Request) (*response.Response, error) {
 	resp.Response = httpResp
 	helpers.Must(rt, resp.Define())
 
-	// TODO: make calling event listeners async
-	err = c.callEventListeners(RESPONSE, resp.Obj)
-	if err != nil {
-		return resp, err
-	}
+	c.queueResponse(resp)
 
 	return resp, nil
 }

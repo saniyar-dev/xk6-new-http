@@ -18,10 +18,7 @@ export default async function () {
   // });
 
   client.on('responseReceived', async e => {
-    console.log("event ran")
     console.log(await e.json())
-    // const resp = await e.json()
-    // console.log(resp)
     // const response = event.data;
     // if (requestID && response.request.id == requestID) {
     //   // Change the request duration metric to any value
@@ -36,4 +33,5 @@ export default async function () {
   });
 
   await client.get('https://httpbin.test.k6.io/get');
+  console.log("first")
 }
