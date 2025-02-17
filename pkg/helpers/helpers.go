@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/grafana/sobek"
+	"github.com/saniyar-dev/xk6-new-http/pkg/events"
 	"go.k6.io/k6/js/common"
 )
 
@@ -45,4 +46,11 @@ func DynamicRead(read func([]byte) (int, error), timeout time.Duration) (int, []
 	}
 
 	return total, buffer.Bytes(), nil
+}
+
+// NewEventListener function helps you to create a fress EventListener
+func NewEventListener(t string) *events.EventListener {
+	return &events.EventListener{
+		EventType: t,
+	}
 }

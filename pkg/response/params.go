@@ -12,5 +12,6 @@ type Responseparams struct{}
 var _ interfaces.Params = &Responseparams{}
 
 func (r *Response) ParseParams(rt *sobek.Runtime, args []sobek.Value) (interfaces.Params, error) {
+	r.params = &Responseparams{}
 	return &Responseparams{}, nil
 }

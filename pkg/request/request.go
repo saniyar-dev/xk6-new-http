@@ -1,9 +1,9 @@
 package request
 
 import (
-	"log"
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/grafana/sobek"
 	"github.com/saniyar-dev/xk6-new-http/pkg/interfaces"
 	"go.k6.io/k6/js/modules"
@@ -12,6 +12,8 @@ import (
 // Request object
 type Request struct {
 	*http.Request
+
+	id string
 
 	Vu modules.VU
 
@@ -49,15 +51,15 @@ func (r *Request) Set(k string, val sobek.Value) bool {
 	return true
 }
 
-func (r *Request) print() {
-	log.Print("from print function")
-}
-
 // Define func defines data properties on obj attatched to Request struct.
 func (r *Request) Define() error {
 	rt := r.Vu.Runtime()
-	r.Request.URL = r.params.url
-	r.Request.Header = r.params.headers.Clone()
-	r.Set("print", rt.ToValue(r.print))
+
+	r.id = uuid.New().String()
+	if r.params != nil {
+		r.Request.URL = r.params.url
+		r.Request.Header = r.params.headers.Clone()
+	}
+	r.Set("id", rt.ToValue(r.id))
 	return nil
 }

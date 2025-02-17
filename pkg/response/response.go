@@ -6,9 +6,11 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/grafana/sobek"
 	"github.com/saniyar-dev/xk6-new-http/pkg/helpers"
 	"github.com/saniyar-dev/xk6-new-http/pkg/interfaces"
+	"github.com/saniyar-dev/xk6-new-http/pkg/request"
 	"go.k6.io/k6/js/modules"
 )
 
@@ -16,9 +18,15 @@ import (
 type Response struct {
 	*http.Response
 
+	id string
+
 	Vu modules.VU
 
 	M map[string]sobek.Value
+
+	Request *request.Request
+
+	params *Responseparams
 }
 
 var _ interfaces.Object = &Response{}
@@ -53,8 +61,11 @@ func (r *Response) Set(k string, val sobek.Value) bool {
 // Define func defines data properties on obj attatched to Client struct.
 func (r *Response) Define() error {
 	rt := r.Vu.Runtime()
+	r.id = uuid.New().String()
 
 	r.Set("json", rt.ToValue(r.jsonAsync))
+	r.Set("request", rt.NewDynamicObject(r.Request))
+	r.Set("id", rt.ToValue(r.id))
 	return nil
 }
 
