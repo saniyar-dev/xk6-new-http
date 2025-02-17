@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/grafana/sobek"
-	"github.com/saniyar-dev/xk6-new-http/pkg/client"
 	"github.com/saniyar-dev/xk6-new-http/pkg/helpers"
+	xhttp "github.com/saniyar-dev/xk6-new-http/pkg/http"
 	"github.com/saniyar-dev/xk6-new-http/pkg/request"
 	"go.k6.io/k6/js/modules"
 )
@@ -42,7 +42,7 @@ func (i *HTTPAPI) Exports() modules.Exports {
 func (i *HTTPAPI) initClient(sc sobek.ConstructorCall) *sobek.Object {
 	rt := i.vu.Runtime()
 
-	c := &client.Client{
+	c := &xhttp.Client{
 		Vu: i.vu,
 		M:  make(map[string]sobek.Value),
 	}
