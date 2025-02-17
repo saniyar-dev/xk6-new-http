@@ -43,7 +43,7 @@ func (c *Client) Define() error {
 	c.eventListeners = (&eventListeners{}).New()
 
 	helpers.Must(rt, c.Obj.DefineDataProperty(
-		"addEventListener", rt.ToValue(c.addEventListener), sobek.FLAG_FALSE, sobek.FLAG_FALSE, sobek.FLAG_TRUE))
+		"on", rt.ToValue(c.addEventListener), sobek.FLAG_FALSE, sobek.FLAG_FALSE, sobek.FLAG_TRUE))
 	helpers.Must(rt, c.Obj.DefineDataProperty(
 		"get", rt.ToValue(c.getAsync), sobek.FLAG_FALSE, sobek.FLAG_FALSE, sobek.FLAG_TRUE))
 	return nil
