@@ -69,7 +69,7 @@ func (c *Client) Define() error {
 	c.eventListeners = (&eventListeners{}).New()
 
 	c.Set("get", rt.ToValue(c.getAsync))
-	c.Set("addEventListener", rt.ToValue(c.addEventListener))
+	c.Set("on", rt.ToValue(c.addEventListener))
 	return nil
 }
 
