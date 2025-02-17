@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/grafana/sobek"
 	"github.com/saniyar-dev/xk6-new-http/pkg/helpers"
 	"github.com/saniyar-dev/xk6-new-http/pkg/interfaces"
@@ -22,6 +23,8 @@ import (
 type Client struct {
 	// The http.Client struct to have all the functionalities of a http.Client in Client struct
 	http.Client
+
+	id string
 
 	// Multiple vus in k6 can create multiple Client objects so we need to have access the vu Runtime, etc.
 	Vu modules.VU
@@ -67,6 +70,7 @@ func (c *Client) Set(k string, val sobek.Value) bool {
 func (c *Client) Define() error {
 	rt := c.Vu.Runtime()
 	c.eventListeners = (&eventListeners{}).New()
+	c.id = uuid.New().String()
 
 	c.Set("get", rt.ToValue(c.getAsync))
 	c.Set("on", rt.ToValue(c.addEventListener))
@@ -116,8 +120,9 @@ func (c *Client) do(req *request.Request) (*response.Response, error) {
 	rt := c.Vu.Runtime()
 
 	resp := &response.Response{
-		Vu: c.Vu,
-		M:  make(map[string]sobek.Value),
+		Vu:      c.Vu,
+		M:       make(map[string]sobek.Value),
+		Request: req,
 	}
 
 	httpResp, err := c.Do(req.Request)
@@ -135,6 +140,7 @@ func (c *Client) do(req *request.Request) (*response.Response, error) {
 
 // this function would handle creating request with params from input
 func (c *Client) createRequest(method string, arg sobek.Value, body io.Reader) (*request.Request, error) {
+	rt := c.Vu.Runtime()
 	// add default options to requests function
 	addDefault := func(req *request.Request) {
 		for k, vlist := range c.params.headers {
@@ -155,7 +161,13 @@ func (c *Client) createRequest(method string, arg sobek.Value, body io.Reader) (
 
 	if v, ok := arg.Export().(string); ok {
 		r, err := http.NewRequest(method, v, body)
-		req := &request.Request{Request: r}
+		req := &request.Request{
+			Vu:      c.Vu,
+			M:       make(map[string]sobek.Value),
+			Request: r,
+		}
+		helpers.Must(rt, req.Define())
+
 		addDefault(req)
 		return req, err
 	}
